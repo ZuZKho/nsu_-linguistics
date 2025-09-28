@@ -1,9 +1,8 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import uuid
 from neo4j import GraphDatabase, Result, Record
 import json
-from entities import TNode, TArc
-
+from python_driver.entities import TNode, TArc
 
 class GraphRepository:
     def __init__(self, uri: str, user: str, password: str, database: str = "neo4j"):
@@ -56,6 +55,42 @@ class GraphRepository:
                 return self._collect_node(record["n"])
             
             return None
+        
+    def get_arcs_from_node(self, uri: str) -> List[TNode]:
+        query = """
+        MATCH (parent {uri: $uri})-[arc]->(child)
+        RETURN arc, child, type(arc) as arc_type
+        """
+        
+        with self.driver.session(database=self.database) as session:
+            result = session.run(query, uri=uri)
+            children = []
+            
+            for record in result:
+                child_data = record["child"]
+                child_node = self._collect_node(child_data)
+                children.append(child_node)
+            
+            return children
+
+    def get_arcs_to_node(self, uri: str) -> List[TNode]:
+        query = """
+        MATCH (parent)-[arc]->(child {uri: $uri})
+        RETURN arc, parent, type(arc) as arc_type
+        """
+        
+        with self.driver.session(database=self.database) as session:
+            result = session.run(query, uri=uri)
+            parents = []
+            
+            for record in result:
+                parent_data = record["parent"]
+                
+                # Создаем объект родительского узла
+                parent_node = self._collect_node(parent_data)
+                parents.append(parent_node)
+
+            return parents
 
     def get_all_nodes_and_arcs(self) -> List[TNode]:
         query = """
@@ -191,7 +226,7 @@ class GraphRepository:
     ######################################
     #   Arc creation/deletion methods    #
     ######################################
-    def create_arc(self, from_uri: str, to_uri: str, arc_label: str, props: Dict[str, Any]) -> TArc:
+    def create_arc(self, from_uri: str, to_uri: str, arc_label: str, props: Dict[str, Any] = {}) -> TArc:
         query = f"""
         MATCH (a {{uri: $from_uri}}), (b {{uri: $to_uri}})
         CREATE (a)-[r:{arc_label}]->(b)
@@ -245,6 +280,17 @@ class GraphRepository:
     def _generate_random_uri(self, length: int = 16) -> str:
         return str(uuid.uuid4()).replace("-", "")[:length]
 
+    def _collect_node_with_arcs(self, node_data) -> TNode:
+        props = dict(node_data.items())
+        
+        return TNode(
+            id=node_data.element_id,
+            uri=props.get("uri", ""),
+            labels=list(node_data.labels),
+            props=props,
+            arcs=None
+        )
+    
     def _collect_node(self, node_data) -> TNode:
         props = dict(node_data.items())
         
@@ -263,8 +309,8 @@ class GraphRepository:
             id=arc_data.element_id,
             label=arc_data.type,
             props=props,
-            node_uri_from="",  # Заполним в методах создания/получения
-            node_uri_to=""     # Заполним в методах создания/получения
+            node_uri_from="",  
+            node_uri_to=""    
         )
     
     def _transform_labels(self, labels, separator = ':'):
