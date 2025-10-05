@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional, Tuple
 import uuid
 from neo4j import GraphDatabase, Result, Record
 import json
-from python_driver.entities import TNode, TArc
+from .entities import TNode, TArc
 
 class GraphRepository:
     def __init__(self, uri: str, user: str, password: str, database: str = "neo4j"):
