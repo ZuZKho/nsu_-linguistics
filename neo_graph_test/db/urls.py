@@ -29,22 +29,23 @@ urlpatterns = [
     path('classes/<path:target_uri>/add-parent/', add_class_parent, name='add_class_parent'),
     path('classes/<path:uri>/update/', update_class, name='update_class'),
     path('classes/<path:uri>/delete/', delete_class, name='delete_class'),
-    path('classes/<path:uri>/', get_class, name='get_class'),
-    path('classes/', create_class, name='create_class'),
     
     # Class attributes endpoints
-    path('classes/<path:class_uri>/attributes/', add_class_attribute, name='add_class_attribute'),
+    path('classes/<path:uri>/attributes/', add_class_attribute, name='add_class_attribute'),
     path('attributes/<path:attribute_uri>/delete/', delete_class_attribute, name='delete_class_attribute'),
-    path('classes/<path:class_uri>/object-attributes/', add_class_object_attribute, name='add_class_object_attribute'),
+    path('classes/<path:uri>/object-attributes/', add_class_object_attribute, name='add_class_object_attribute'),
     path('object-attributes/<path:object_property_uri>/delete/', delete_class_object_attribute, name='delete_class_object_attribute'),
+    path('classes/<path:uri>/', get_class, name='get_class'),
     
+
     # Object endpoints
     path('objects/<path:uri>/', get_object, name='get_object'),
-    path('objects/', create_object, name='create_object'),
     path('objects/<path:uri>/update/', update_object, name='update_object'),
     path('objects/<path:uri>/delete/', delete_object, name='delete_object'),
-]
 
+    path('classes/', create_class, name='create_class'),
+    path('objects/', create_object, name='create_object'),
+]
 
 """
 # Создать корпус
@@ -69,29 +70,5 @@ curl -X PUT http://127.0.0.1:8000/api/text/1/ \
 curl -X POST http://127.0.0.1:8000/api/corpora/ \
   -H "Content-Type: application/json" \
   -d '{"name": "Russian Classics", "description": "Classic literature", "genre": "fiction"}'
-
-# Получить корпус с текстами
-curl http://127.0.0.1:8000/api/corpora/1/detail/
-
-
-
-# Получить сигнатуру класса
-curl http://127.0.0.1:8000/api/classes/http%3A%2F%2Fexample.org%2FPerson/signature/
-
-# Поиск классов
-curl http://127.0.0.1:8000/api/search/classes/?q=Person
-
-# Полная иерархия онтологии
-curl http://127.0.0.1:8000/api/ontology/hierarchy/
-
-# Добавить родительский класс
-curl -X POST http://127.0.0.1:8000/api/classes/http%3A%2F%2Fexample.org%2FStudent/add-parent/ \
-  -H "Content-Type: application/json" \
-  -d '{"parent_uri": "http://example.org/Person"}'
-
-# Создать объектный атрибут
-curl -X POST http://127.0.0.1:8000/api/classes/http%3A%2F%2Fexample.org%2FPerson/object-attributes/ \
-  -H "Content-Type: application/json" \
-  -d '{"attr_name": "hasFriend", "range_class_uri": "http://example.org/Person"}'
 
 """
