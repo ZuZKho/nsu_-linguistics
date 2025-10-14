@@ -24,7 +24,8 @@ class Text(models.Model):
     title = models.CharField(max_length=300, verbose_name="Название текста")
     description = models.TextField(verbose_name="Описание текста")
     content = models.TextField(verbose_name="Текст")
-    
+    embeddings = models.TextField(verbose_name="Ембеддинг текста")
+
     # Связь с корпусом
     corpus = models.ForeignKey(
         Corpus, 

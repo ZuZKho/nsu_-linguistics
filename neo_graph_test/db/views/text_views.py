@@ -43,7 +43,8 @@ def create_text(request):
             'description': text.description,
             'content': text.content,
             'corpus_id': text.corpus_id,
-            'has_translation': text.has_translation_id
+            'has_translation': text.has_translation_id,
+            'embeddings': text.embeddings
         }, status=201)
         
     except json.JSONDecodeError:
@@ -88,7 +89,8 @@ def update_text(request, text_id):
             'description': updated_text.description,
             'content': updated_text.content,
             'corpus_id': updated_text.corpus_id,
-            'has_translation': updated_text.has_translation_id
+            'has_translation': updated_text.has_translation_id,
+            'embeddings': updated_text.embeddings
         })
         
     except json.JSONDecodeError:
@@ -111,6 +113,7 @@ def get_text(request, text_id):
             'corpus_id': text.corpus_id,
             'corpus_name': text.corpus.name if text.corpus else None,
             'has_translation': text.has_translation_id,
+            'embeddings': text.embeddings,
         }
         
         return JsonResponse(text_data)

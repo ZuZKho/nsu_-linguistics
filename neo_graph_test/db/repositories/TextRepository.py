@@ -1,5 +1,7 @@
 from typing import List, Optional
 from db.models import Text
+from db.services.embedding_service import EmbeddingService
+import json
 
 class TextRepository:
     
@@ -16,12 +18,18 @@ class TextRepository:
     
     @staticmethod
     def create(text_data: dict) -> Text:
+        service = EmbeddingService()
+        chunks = service.get_chunks(text_data.get('content'))
+        text_data["embeddings"] = json.dumps(service.get_embeddings(chunks).tolist())
         return Text.objects.create(**text_data)
     
     @staticmethod
     def update(text: Text, text_data: dict) -> Text:
         for field, value in text_data.items():
             setattr(text, field, value)
+        service = EmbeddingService()
+        chunks = service.get_chunks(text_data.get('content'))
+        text_data["embeddings"] = json.dumps(service.get_embeddings(chunks).tolist())
         text.save()
         return text
     
