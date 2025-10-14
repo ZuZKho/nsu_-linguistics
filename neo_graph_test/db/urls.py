@@ -2,6 +2,7 @@ from django.urls import path
 from django.conf.urls import url
 import db.views.corpus_views as corpus_views
 import db.views.text_views as text_views
+import db.views.embedding_views as embedding_views
 from db.views.ontology_views import *
 
 urlpatterns = [
@@ -45,6 +46,11 @@ urlpatterns = [
 
     path('classes/', create_class, name='create_class'),
     path('objects/', create_object, name='create_object'),
+
+    # Embeddings
+    path("embedding/chunk/", embedding_views.chunk_text),
+    path("embedding/encode/", embedding_views.get_embeddings),
+    path("embedding/compare/", embedding_views.compare_embeddings),
 ]
 
 """
